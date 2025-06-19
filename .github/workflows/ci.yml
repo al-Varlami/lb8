@@ -88,7 +88,7 @@ jobs:
           echo "$output"
           
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: solver-results
           path: artifacts/
