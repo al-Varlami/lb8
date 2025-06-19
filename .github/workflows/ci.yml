@@ -1,0 +1,54 @@
+name: CI workflow
+
+on:
+  [push, pull_request]
+
+jobs:
+  build_on_linux:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - cpp_comp: g++
+            c_comp: gcc
+          - cpp_comp: clang++
+            c_comp: clang
+
+    steps:
+      - name: checking out repository
+        uses: actions/checkout@v4
+
+      - name: preparing build
+        run:  cmake -H. -B_build -D CMAKE_CXX_COMPILER=${{matrix.cpp_comp}} -D CMAKE_C_COMPILER=${{matrix.c_comp}} 
+      - name: building
+        run:  cmake --build _build
+      - name: checking programs output
+        run:  |
+          echo "1 -5  6" | _build/solver_application/solver_app
+          _build/hello_world_application/hello
+      - name: status info
+        run: echo ${{ job.status }} is status of job
+
+  build_on_windows:
+    runs-on: ${{matrix.os}}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest]
+
+    steps:
+      - name: checking out repository
+        uses: actions/checkout@v4
+
+      - name: preparing build
+        run:  cmake . -B_build 
+      - name: building
+        run:  cmake --build _build
+      - name: checking programs output
+        run:  |
+          echo "1 -5  6" | _build\solver_application\Debug\solver_app 
+          _build\hello_world_application\Debug\hello
+
+      - name: status info
+        run: echo ${{ job.status }} is status of job
